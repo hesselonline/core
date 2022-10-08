@@ -6,6 +6,7 @@ from typing import Any
 from homeassistant.components.lock import LockEntity, LockEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import InvalidAuth, WallboxCoordinator, WallboxEntity
@@ -36,6 +37,10 @@ async def async_setup_entry(
         )
     except InvalidAuth:
         return
+    except ConnectionError as err:
+        raise PlatformNotReady(
+            f"Connection error while setting up wallbox lock platform: {err}"
+        ) from err
 
     async_add_entities(
         [
